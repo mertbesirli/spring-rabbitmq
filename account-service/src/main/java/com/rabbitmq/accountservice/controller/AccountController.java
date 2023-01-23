@@ -2,6 +2,7 @@ package com.rabbitmq.accountservice.controller;
 
 import com.rabbitmq.accountservice.dto.AccountDto;
 import com.rabbitmq.accountservice.dto.CreateAccountRequest;
+import com.rabbitmq.accountservice.dto.UpdateAccountRequest;
 import com.rabbitmq.accountservice.service.AccountServiceImpl;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +28,16 @@ public class AccountController implements AccountOperations{
     public String createAccount(CreateAccountRequest createAccountRequest) {
         accountService.createAccount(createAccountRequest);
         return "Account Created Successfully";
+    }
+
+    @Override
+    public void deleteAccount(String id) {
+        accountService.deleteAccount(id);
+    }
+
+    @Override
+    public AccountDto updateAccount(String id, UpdateAccountRequest updateAccountRequest) {
+        return accountService.updateAccount(id, updateAccountRequest);
     }
 
 }

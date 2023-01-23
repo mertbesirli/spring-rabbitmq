@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -79,6 +80,41 @@ public class AccountServiceImpl implements AccountService {
 
         amqpTemplate.convertAndSend(exchange.getName(), routingKey, createAccountRequest);
 
+    }
+
+    @Override
+    public void deleteAccount(String id) {
+        accountRepository.deleteById(id);
+    }
+
+    @Override
+    public AccountDto updateAccount(String id, UpdateAccountRequest updateAccountRequest) {
+        String customerIds = updateAccountRequest.getCustomerId();
+
+        CustomerResponse[] customerResponses = webClient.get()
+                .uri("http://localhost:8081/api/customer",
+                        uriBuilder -> uriBuilder.queryParam("id", customerIds).build())
+                .retrieve()
+                .bodyToMono(CustomerResponse[].class)
+                .block();
+
+        assert customerResponses != null;
+        List<String> customerList = Arrays.stream(customerResponses)
+                .map(customerResponse -> customerResponse.getId())
+                .toList();
+        if(!customerList.contains(updateAccountRequest.getCustomerId())){
+            throw new CustomerNotFoundException("Customer Not Found!");
+        }
+
+        Optional<Account> accountOptional = accountRepository.findById(id);
+        accountOptional.ifPresent(account -> {
+            account.setCostumerId(updateAccountRequest.getCustomerId());
+            account.setCity(updateAccountRequest.getCity());
+            account.setCurrency(updateAccountRequest.getCurrency());
+            account.setBalance(updateAccountRequest.getBalance());
+        });
+
+        return accountOptional.map(account -> accountDtoConverter.convert(account)).orElse(new AccountDto());
     }
 
 }
