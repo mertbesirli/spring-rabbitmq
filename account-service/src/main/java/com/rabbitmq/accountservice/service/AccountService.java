@@ -9,4 +9,5 @@ public interface AccountService {
     List<AccountDto> getAllAccounts();
 
     void createAccount(CreateAccountRequest createAccountRequest);
+
 }

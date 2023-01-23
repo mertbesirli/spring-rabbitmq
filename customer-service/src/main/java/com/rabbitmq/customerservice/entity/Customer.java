@@ -18,7 +18,6 @@ import java.io.Serializable;
 public class Customer implements Serializable {
     @Id
     private String id;
-
     private String name;
     private Integer dateOfBirth;
     private City city;

@@ -1,14 +1,14 @@
 package com.rabbitmq.accountservice.service;
 
 
-import com.rabbitmq.accountservice.dto.AccountDto;
-import com.rabbitmq.accountservice.dto.AccountDtoConverter;
-import com.rabbitmq.accountservice.dto.CreateAccountRequest;
-import com.rabbitmq.accountservice.dto.CustomerResponse;
+import com.rabbitmq.accountservice.dto.*;
 import com.rabbitmq.accountservice.entity.Account;
 import com.rabbitmq.accountservice.exception.CustomerNotFoundException;
 import com.rabbitmq.accountservice.repository.AccountRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -22,11 +22,21 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountDtoConverter accountDtoConverter;
     private final WebClient webClient;
+    private final DirectExchange exchange;
+    private final AmqpTemplate amqpTemplate;
 
-    public AccountServiceImpl(AccountRepository accountRepository, AccountDtoConverter accountDtoConverter, WebClient webClient) {
+    @Value("${sample.rabbitmq.routingKey}")
+    String routingKey;
+
+    @Value("${sample.rabbitmq.queue}")
+    String queueName;
+
+    public AccountServiceImpl(AccountRepository accountRepository, AccountDtoConverter accountDtoConverter, WebClient webClient, DirectExchange exchange, AmqpTemplate amqpTemplate) {
         this.accountRepository = accountRepository;
         this.accountDtoConverter = accountDtoConverter;
         this.webClient = webClient;
+        this.exchange = exchange;
+        this.amqpTemplate = amqpTemplate;
     }
 
     @Override
@@ -66,5 +76,9 @@ public class AccountServiceImpl implements AccountService {
                 .build();
 
         accountRepository.save(account);
+
+        amqpTemplate.convertAndSend(exchange.getName(), routingKey, createAccountRequest);
+
     }
+
 }
