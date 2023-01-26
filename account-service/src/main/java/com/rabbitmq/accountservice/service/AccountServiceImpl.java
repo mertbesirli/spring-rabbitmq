@@ -112,6 +112,7 @@ public class AccountServiceImpl implements AccountService {
             account.setCity(updateAccountRequest.getCity());
             account.setCurrency(updateAccountRequest.getCurrency());
             account.setBalance(updateAccountRequest.getBalance());
+            accountRepository.save(account);
         });
 
         return accountOptional.map(account -> accountDtoConverter.convert(account)).orElse(new AccountDto());
