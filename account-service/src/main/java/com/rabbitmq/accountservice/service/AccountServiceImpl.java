@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountDtoConverter accountDtoConverter;
-    private final WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
     private final DirectExchange exchange;
     private final AmqpTemplate amqpTemplate;
 
@@ -32,10 +32,10 @@ public class AccountServiceImpl implements AccountService {
     @Value("${sample.rabbitmq.queue}")
     String queueName;
 
-    public AccountServiceImpl(AccountRepository accountRepository, AccountDtoConverter accountDtoConverter, WebClient webClient, DirectExchange exchange, AmqpTemplate amqpTemplate) {
+    public AccountServiceImpl(AccountRepository accountRepository, AccountDtoConverter accountDtoConverter, WebClient.Builder webClientBuilder, DirectExchange exchange, AmqpTemplate amqpTemplate) {
         this.accountRepository = accountRepository;
         this.accountDtoConverter = accountDtoConverter;
-        this.webClient = webClient;
+        this.webClientBuilder = webClientBuilder;
         this.exchange = exchange;
         this.amqpTemplate = amqpTemplate;
     }
@@ -53,8 +53,8 @@ public class AccountServiceImpl implements AccountService {
 
         String customerIds = createAccountRequest.getCustomerId();
 
-        CustomerResponse[] customerResponses = webClient.get()
-                .uri("http://localhost:8081/api/customer",
+        CustomerResponse[] customerResponses = webClientBuilder.build().get()
+                .uri("http://customer-service/api/customer",
                         uriBuilder -> uriBuilder.queryParam("id", customerIds).build())
                 .retrieve()
                 .bodyToMono(CustomerResponse[].class)
@@ -91,8 +91,8 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto updateAccount(String id, UpdateAccountRequest updateAccountRequest) {
         String customerIds = updateAccountRequest.getCustomerId();
 
-        CustomerResponse[] customerResponses = webClient.get()
-                .uri("http://localhost:8081/api/customer",
+        CustomerResponse[] customerResponses = webClientBuilder.build().get()
+                .uri("http://customer-service/api/customer",
                         uriBuilder -> uriBuilder.queryParam("id", customerIds).build())
                 .retrieve()
                 .bodyToMono(CustomerResponse[].class)
