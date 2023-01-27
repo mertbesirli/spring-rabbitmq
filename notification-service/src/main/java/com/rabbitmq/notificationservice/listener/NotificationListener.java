@@ -1,6 +1,6 @@
-package com.rabbitmq.notificationservice.dto.listener;
+package com.rabbitmq.notificationservice.listener;
 
-import com.rabbitmq.notificationservice.dto.dto.CreateAccountRequest;
+import com.rabbitmq.notificationservice.dto.CreateAccountRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;

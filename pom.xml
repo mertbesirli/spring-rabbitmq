@@ -18,11 +18,12 @@
         <module>account-service</module>
         <module>customer-service</module>
         <module>notification-service</module>
+        <module>eureka-server</module>
     </modules>
 
     <properties>
         <java.version>17</java.version>
-        <spring-cloud.version>2022.0.0</spring-cloud.version>
+        <spring-cloud.version>2021.0.2</spring-cloud.version>
     </properties>
 
     <dependencyManagement>

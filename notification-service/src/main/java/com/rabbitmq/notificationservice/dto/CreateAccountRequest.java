@@ -1,7 +1,5 @@
-package com.rabbitmq.notificationservice.dto.dto;
+package com.rabbitmq.notificationservice.dto;
 
-import com.rabbitmq.notificationservice.dto.dto.City;
-import com.rabbitmq.notificationservice.dto.dto.Currency;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

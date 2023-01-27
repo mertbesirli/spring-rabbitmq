@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="account-service" />
         <module name="customer-service" />
+        <module name="eureka-server" />
         <module name="notification-service" />
       </profile>
     </annotationProcessing>
@@ -16,6 +17,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="account-service" options="-parameters" />
       <module name="customer-service" options="-parameters" />
+      <module name="eureka-server" options="-parameters" />
       <module name="notification-service" options="-parameters" />
     </option>
   </component>
