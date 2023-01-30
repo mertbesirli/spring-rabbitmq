@@ -9,7 +9,7 @@ import java.util.List;
 public interface AccountService {
     List<AccountDto> getAllAccounts();
 
-    void createAccount(CreateAccountRequest createAccountRequest);
+    String createAccount(CreateAccountRequest createAccountRequest);
 
     void deleteAccount(String id);
 

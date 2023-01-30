@@ -49,7 +49,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void createAccount(CreateAccountRequest createAccountRequest) {
+    public String createAccount(CreateAccountRequest createAccountRequest) {
 
         String customerIds = createAccountRequest.getCustomerId();
 
@@ -79,6 +79,8 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(account);
 
         amqpTemplate.convertAndSend(exchange.getName(), routingKey, createAccountRequest);
+
+        return "Account Created Successfully";
 
     }
 

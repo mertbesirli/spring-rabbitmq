@@ -4,10 +4,13 @@ import com.rabbitmq.accountservice.dto.AccountDto;
 import com.rabbitmq.accountservice.dto.CreateAccountRequest;
 import com.rabbitmq.accountservice.dto.UpdateAccountRequest;
 import com.rabbitmq.accountservice.service.AccountServiceImpl;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/account")
@@ -25,9 +28,15 @@ public class AccountController implements AccountOperations{
     }
 
     @Override
-    public String createAccount(CreateAccountRequest createAccountRequest) {
-        accountService.createAccount(createAccountRequest);
-        return "Account Created Successfully";
+    @CircuitBreaker(name = "customer", fallbackMethod = "fallbackMethod")
+    @TimeLimiter(name = "customer")
+    public CompletableFuture<String> createAccount(CreateAccountRequest createAccountRequest) {
+        return CompletableFuture.supplyAsync(() -> accountService.createAccount(createAccountRequest));
+    }
+
+    @Override
+    public CompletableFuture<String> fallbackMethod(CreateAccountRequest createAccountRequest, RuntimeException runtimeException){
+        return CompletableFuture.supplyAsync(() -> "Something went wrong, please order after time!");
     }
 
     @Override

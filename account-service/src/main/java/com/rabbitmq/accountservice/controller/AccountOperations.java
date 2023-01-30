@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RequestMapping("/default")
 public interface AccountOperations {
@@ -17,7 +18,9 @@ public interface AccountOperations {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    String createAccount(@RequestBody CreateAccountRequest createAccountRequest);
+    CompletableFuture<String> createAccount(@RequestBody CreateAccountRequest createAccountRequest);
+
+    CompletableFuture<String> fallbackMethod(CreateAccountRequest createAccountRequest, RuntimeException runtimeException);
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
