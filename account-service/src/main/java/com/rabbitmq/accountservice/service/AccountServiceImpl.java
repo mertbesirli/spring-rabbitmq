@@ -3,12 +3,14 @@ package com.rabbitmq.accountservice.service;
 
 import com.rabbitmq.accountservice.dto.*;
 import com.rabbitmq.accountservice.entity.Account;
+import com.rabbitmq.accountservice.event.OrderPlacedEvent;
 import com.rabbitmq.accountservice.exception.CustomerNotFoundException;
 import com.rabbitmq.accountservice.repository.AccountRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -25,6 +27,7 @@ public class AccountServiceImpl implements AccountService {
     private final WebClient.Builder webClientBuilder;
     private final DirectExchange exchange;
     private final AmqpTemplate amqpTemplate;
+    private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
 
     @Value("${sample.rabbitmq.routingKey}")
     String routingKey;
@@ -32,12 +35,13 @@ public class AccountServiceImpl implements AccountService {
     @Value("${sample.rabbitmq.queue}")
     String queueName;
 
-    public AccountServiceImpl(AccountRepository accountRepository, AccountDtoConverter accountDtoConverter, WebClient.Builder webClientBuilder, DirectExchange exchange, AmqpTemplate amqpTemplate) {
+    public AccountServiceImpl(AccountRepository accountRepository, AccountDtoConverter accountDtoConverter, WebClient.Builder webClientBuilder, DirectExchange exchange, AmqpTemplate amqpTemplate, KafkaTemplate kafkaTemplate) {
         this.accountRepository = accountRepository;
         this.accountDtoConverter = accountDtoConverter;
         this.webClientBuilder = webClientBuilder;
         this.exchange = exchange;
         this.amqpTemplate = amqpTemplate;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Override
@@ -81,7 +85,6 @@ public class AccountServiceImpl implements AccountService {
         amqpTemplate.convertAndSend(exchange.getName(), routingKey, createAccountRequest);
 
         return "Account Created Successfully";
-
     }
 
     @Override
@@ -120,4 +123,15 @@ public class AccountServiceImpl implements AccountService {
         return accountOptional.map(account -> accountDtoConverter.convert(account)).orElse(new AccountDto());
     }
 
+    @Override
+    public AccountDto addMoney(String id, Double amount) {
+        Optional<Account> accountOptional = accountRepository.findById(id);
+
+        accountOptional.ifPresent(account -> {
+            account.setBalance(account.getBalance() + amount);
+            accountRepository.save(account);
+            kafkaTemplate.send("notificationTopic", new OrderPlacedEvent(account.getBalance()));
+        });
+        return accountOptional.map(account -> accountDtoConverter.convert(account)).orElse(new AccountDto());
+    }
 }

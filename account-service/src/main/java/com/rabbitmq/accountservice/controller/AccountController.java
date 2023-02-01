@@ -49,4 +49,9 @@ public class AccountController implements AccountOperations{
         return accountService.updateAccount(id, updateAccountRequest);
     }
 
+    @Override
+    public AccountDto addMoney(String id, Double amount) {
+        return accountService.addMoney(id, amount);
+    }
+
 }

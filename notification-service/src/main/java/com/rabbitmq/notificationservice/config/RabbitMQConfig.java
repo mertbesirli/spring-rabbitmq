@@ -1,4 +1,4 @@
-package com.rabbitmq.notificationservice.dto.config;
+package com.rabbitmq.notificationservice.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Queue;

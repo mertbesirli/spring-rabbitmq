@@ -14,5 +14,7 @@ public interface AccountService {
     void deleteAccount(String id);
 
     AccountDto updateAccount(String id, UpdateAccountRequest updateAccountRequest);
+
+    AccountDto addMoney(String id, Double amount);
 }
 

@@ -30,4 +30,9 @@ public interface AccountOperations {
     @ResponseStatus(HttpStatus.OK)
     AccountDto updateAccount(@PathVariable String id, @RequestBody UpdateAccountRequest updateAccountRequest);
 
+    @PutMapping("/{id}/{amount}")
+    @ResponseStatus(HttpStatus.OK)
+    AccountDto addMoney(@PathVariable String id, @PathVariable Double amount);
+
+
 }
